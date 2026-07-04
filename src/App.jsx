@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, provider, db } from "./firebase";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 export default function App() {
@@ -8,19 +8,37 @@ export default function App() {
   const [activeRoom, setActiveRoom] = useState("General");
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [authLoading, setAuthLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
   const rooms = ["General", "Gaming", "Coding", "Music"];
 
-  // 1. Authenticate user tracking session state
+  // 1. Check for incoming redirect authentication results on reload
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect connection error:", error.message);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, []);
+
+  // 2. Track standard auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // 2. Load and sync messages data query streams on room channel switches
+  // 3. Sync live message data queries
   useEffect(() => {
     if (!user) return;
 
@@ -41,14 +59,14 @@ export default function App() {
     return () => unsubscribe();
   }, [activeRoom, user]);
 
-  // Scroll viewport down automatically on new message injections
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSignIn = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      // Switched from pop-up to standard window redirect
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Auth error:", error.message);
     }
@@ -61,7 +79,7 @@ export default function App() {
     await addDoc(collection(db, "messages"), {
       text: newMessage,
       createdAt: serverTimestamp(),
-      user: user.displayName,
+      user: user.displayName || "Anonymous",
       uid: user.uid,
       room: activeRoom,
     });
@@ -69,7 +87,14 @@ export default function App() {
     setNewMessage("");
   };
 
-  // Auth gate page view conditional rendering
+  if (authLoading) {
+    return (
+      <div className="auth-container">
+        <h1>Loading Secure Stream...</h1>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="auth-container">
@@ -82,7 +107,6 @@ export default function App() {
 
   return (
     <div className="chat-app">
-      {/* SIDEBAR NAVIGATION SECTION */}
       <div className="sidebar">
         <h2>💬 Chat Rooms</h2>
         <div className="room-list">
@@ -99,7 +123,6 @@ export default function App() {
         <button className="room-list logout-btn" onClick={() => signOut(auth)}>Log Out</button>
       </div>
 
-      {/* CHAT WINDOW INTERACTIVE FEED SECTION */}
       <div className="chat-window">
         <div className="chat-header"># {activeRoom} Channel</div>
         
