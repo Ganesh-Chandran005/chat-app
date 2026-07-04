@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, provider, db } from "./firebase";
-import { signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from "firebase/auth";
+import { signInWithRedirect, signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 export default function App() {
@@ -13,32 +13,14 @@ export default function App() {
 
   const rooms = ["General", "Gaming", "Coding", "Music"];
 
-  // 1. Check for incoming redirect authentication results on reload
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-        }
-      })
-      .catch((error) => {
-        console.error("Redirect connection error:", error.message);
-      })
-      .finally(() => {
-        setAuthLoading(false);
-      });
-  }, []);
-
-  // 2. Track standard auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) setAuthLoading(false);
+      setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // 3. Sync live message data queries
   useEffect(() => {
     if (!user) return;
 
@@ -65,10 +47,9 @@ export default function App() {
 
   const handleSignIn = async () => {
     try {
-      // Switched from pop-up to standard window redirect
       await signInWithRedirect(auth, provider);
     } catch (error) {
-      console.error("Auth error:", error.message);
+      alert("Authentication failed: " + error.message);
     }
   };
 
