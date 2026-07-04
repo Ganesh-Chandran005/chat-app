@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Your unique keys from the console screenshot
 const firebaseConfig = {
   apiKey: "AIzaSyAaqw26SBYCr-WNKs5X0hqQKzc-iZVY5yc",
   authDomain: "chat-app-efaf3.firebaseapp.com",
@@ -13,7 +12,6 @@ const firebaseConfig = {
   measurementId: "G-EYH8B5SPGW"
 };
 
-// Initialize app instances
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
