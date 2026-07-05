@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, provider, db } from "./firebase";
-import { signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from "firebase/auth";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 export default function App() {
@@ -12,23 +12,6 @@ export default function App() {
   const messagesEndRef = useRef(null);
 
   const rooms = ["General", "Gaming", "Coding", "Music"];
-
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-        }
-      })
-      .catch((error) => {
-        console.error("Redirect auth error:", error.message);
-      })
-      .finally(() => {
-        if (!auth.currentUser) {
-          setAuthLoading(false);
-        }
-      });
-  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -65,9 +48,11 @@ export default function App() {
   const handleSignIn = async () => {
     try {
       setAuthLoading(true);
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
     } catch (error) {
       alert("Authentication failed: " + error.message);
+    } finally {
       setAuthLoading(false);
     }
   };
