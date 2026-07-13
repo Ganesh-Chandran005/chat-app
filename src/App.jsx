@@ -1,137 +1,139 @@
-import React, { useState, useEffect, useRef } from "react";
-import { auth, provider, db } from "./firebase";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import React, { useState } from 'react';
+import { MessageSquare, Compass, Layers, Radio, Settings, LogOut, Sparkles } from 'lucide-react';
+import { Sidebar, ChatRoom, UserPanel, Modal } from './components';
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [activeRoom, setActiveRoom] = useState("General");
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [authLoading, setAuthLoading] = useState(true);
-  const messagesEndRef = useRef(null);
+  const [rooms, setRooms] = useState([
+    { id: 'general', name: 'general-matrix', desc: 'Core global structural node chat' },
+    { id: 'dev-core', name: 'dev-subsystem', desc: 'Architecture compiler logging & state debugging' },
+    { id: 'design-ambient', name: 'ambient-ui', desc: 'Gradients, layout glassmorphism, and styling vectors' }
+  ]);
+  const [activeRoomId, setActiveRoomId] = useState('general');
+  const [showModal, setShowModal] = useState(false);
+  const [newRoomName, setNewRoomName] = useState('');
+  const [newRoomDesc, setNewRoomDesc] = useState('');
+  const [inputMessage, setInputMessage] = useState('');
+  
+  const [messages, setMessages] = useState({
+    'general': [
+      { id: 1, user: 'System-Core', avatar: '⚡', text: 'Ambient network layer initialized successfully.', time: '09:42 PM', isSystem: true },
+      { id: 2, user: 'Annatony2', avatar: '🎮', text: 'Check out the new backdrop blur filters on the dashboard container. It looks incredible.', time: '09:44 PM' }
+    ],
+    'dev-core': [
+      { id: 1, user: 'Compiler-Bot', avatar: '⚙️', text: 'Vite engine operational. Hot module replacement runtime active.', time: '08:15 PM', isSystem: true }
+    ],
+    'design-ambient': [
+      { id: 1, user: 'Ganesh', avatar: '🌌', text: 'We need high-saturation pink and cyan blurred vector orbs floating underneath the layers.', time: '09:50 PM' }
+    ]
+  });
 
-  const rooms = ["General", "Gaming", "Coding", "Music"];
+  const activeRoom = rooms.find(r => r.id === activeRoomId) || rooms[0];
+  const currentMessages = messages[activeRoomId] || [];
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const messagesQuery = query(
-      collection(db, "messages"),
-      where("room", "==", activeRoom),
-      orderBy("createdAt", "asc")
-    );
-
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const fetchedMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMessages(fetchedMessages);
-    });
-
-    return () => unsubscribe();
-  }, [activeRoom, user]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSignIn = async () => {
-    try {
-      setAuthLoading(true);
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-    } catch (error) {
-      alert("Authentication failed: " + error.message);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleSendMessage = async (e) => {
+  const handleCreateRoom = (e) => {
     e.preventDefault();
-    if (newMessage.trim() === "") return;
+    if (!newRoomName.trim()) return;
+    
+    const newId = newRoomName.toLowerCase().replace(/\s+/g, '-');
+    if (rooms.some(r => r.id === newId)) return;
 
-    await addDoc(collection(db, "messages"), {
-      text: newMessage,
-      createdAt: serverTimestamp(),
-      user: user.displayName || "Anonymous",
-      uid: user.uid,
-      room: activeRoom,
+    const newRoom = {
+      id: newId,
+      name: newRoomName.toLowerCase().replace(/\s+/g, '-'),
+      desc: newRoomDesc || 'Custom operational vector chatroom.'
+    };
+
+    setRooms([...rooms, newRoom]);
+    setMessages({
+      ...messages,
+      [newId]: [{ id: Date.now(), user: 'System-Core', avatar: '⚡', text: `Room #${newRoom.name} established cleanly.`, time: 'Just Now', isSystem: true }]
     });
-
-    setNewMessage("");
+    setActiveRoomId(newId);
+    setNewRoomName('');
+    setNewRoomDesc('');
+    setShowModal(false);
   };
 
-  if (authLoading) {
-    return (
-      <div className="auth-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-        <h1>Loading Secure Stream...</h1>
-        <p>Verifying authentication with Google...</p>
-      </div>
-    );
-  }
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!inputMessage.trim()) return;
 
-  if (!user) {
-    return (
-      <div className="auth-container">
-        <h1>Multi-Room Chat Application</h1>
-        <p>Sign in with your Google account to join discussions.</p>
-        <button className="google-btn" onClick={handleSignIn}>Sign In with Google</button>
-      </div>
-    );
-  }
+    const newMsg = {
+      id: Date.now(),
+      user: 'Ganesh',
+      avatar: '🌌',
+      text: inputMessage,
+      time: 'Just Now'
+    };
+
+    setMessages({
+      ...messages,
+      [activeRoomId]: [...currentMessages, newMsg]
+    });
+    setInputMessage('');
+  };
 
   return (
-    <div className="chat-app">
-      <div className="sidebar">
-        <h2>💬 Chat Rooms</h2>
-        <div className="room-list">
-          {rooms.map((room) => (
-            <button
-              key={room}
-              className={activeRoom === room ? "active" : ""}
-              onClick={() => setActiveRoom(room)}
-            >
-              # {room}
-            </button>
-          ))}
+    <div className="relative w-screen h-screen flex overflow-hidden bg-[#030014] select-none">
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
+
+      <div className="w-16 h-full bg-[#06041d]/60 border-r border-white/5 flex flex-col items-center py-6 justify-between z-20 backdrop-blur-md">
+        <div className="flex flex-col gap-6 items-center w-full">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer hover:scale-105 transition-transform">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div className="w-8 h-[1px] bg-white/10" />
+          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-purple-400 border border-purple-500/20 cursor-pointer">
+            <MessageSquare className="w-5 h-5" />
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
+            <Compass className="w-5 h-5" />
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
+            <Radio className="w-5 h-5" />
+          </div>
         </div>
-        <button className="room-list logout-btn" onClick={() => signOut(auth)}>Log Out</button>
+        <div className="flex flex-col gap-5 items-center w-full">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
+            <Settings className="w-5 h-5" />
+          </div>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500/70 hover:text-red-400 cursor-pointer transition-colors">
+            <LogOut className="w-5 h-5" />
+          </div>
+        </div>
       </div>
 
-      <div className="chat-window">
-        <div className="chat-header"># {activeRoom} Channel</div>
-        
-        <div className="messages-container">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`message ${msg.uid === user.uid ? "user" : ""}`}>
-              <span className="message-user">{msg.user}</span>
-              <p className="message-text">{msg.text}</p>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
+      <Sidebar 
+        rooms={rooms} 
+        activeRoomId={activeRoomId} 
+        setActiveRoomId={setActiveRoomId} 
+        setShowModal={setShowModal} 
+      />
 
-        <form onSubmit={handleSendMessage} className="message-form">
-          <input
-            type="text"
-            placeholder={`Message #${activeRoom}...`}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-          />
-          <button type="submit">Send</button>
-        </form>
-      </div>
+      <ChatRoom 
+        activeRoom={activeRoom}
+        currentMessages={currentMessages}
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        handleSendMessage={handleSendMessage}
+      />
+
+      <UserPanel />
+
+      {showModal && (
+        <Modal 
+          newRoomName={newRoomName}
+          setNewRoomName={setNewRoomName}
+          newRoomDesc={newRoomDesc}
+          setNewRoomDesc={setNewRoomDesc}
+          handleCreateRoom={handleCreateRoom}
+          setShowModal={setShowModal}
+        />
+      )}
     </div>
   );
 }
