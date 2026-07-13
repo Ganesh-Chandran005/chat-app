@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Compass, Radio, Settings, LogOut, Sparkles, LogIn, Plus, Users } from 'lucide-react';
+import { MessageSquare, Compass, Radio, Settings, LogOut, Sparkles, LogIn } from 'lucide-react';
 import { Sidebar, ChatRoom, UserPanel, Modal } from './components';
 import { db, auth, provider } from './firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -8,10 +8,7 @@ import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Navigation State: 'chat' | 'explore' | 'live' | 'settings'
   const [activeTab, setActiveTab] = useState('chat');
-  
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -147,7 +144,7 @@ export default function App() {
 
   if (!user) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyText: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
         <div style={{ zIndex: 10, textAlign: 'center', maxWidth: '400px', width: '90%', padding: '40px 30px', borderRadius: '24px', backgroundColor: 'rgba(6, 4, 29, 0.4)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)' }}>
@@ -171,16 +168,12 @@ export default function App() {
       <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-      {/* Main Global Icon Sidebar Nav */}
       <div style={{ width: '72px', height: '100%', backgroundColor: 'rgba(6, 4, 29, 0.6)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', justifyContent: 'space-between', zIndex: 20, backdropFilter: 'blur(12px)', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', itemsCenter: 'center', width: '100%', alignItems: 'center', gap: '8px' }}>
-          
-          {/* Logo Brand Icon */}
+        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
             <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
           </div>
           
-          {/* Navigation Tab Nodes */}
           <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
             <MessageSquare style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
@@ -195,7 +188,6 @@ export default function App() {
             <Radio style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
           </button>
-
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
@@ -211,7 +203,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Dynamic Main Workspace Content Conditional Render Layer */}
       {activeTab === 'chat' && (
         rooms.length === 0 ? (
           <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
@@ -230,11 +221,11 @@ export default function App() {
       )}
 
       {activeTab === 'explore' && (
-        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column', justifyText: 'start' }}>
+        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
           <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
-          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px', fontFamily: 'monospace' }}>
-            GLOBAL CHANNEL DISCOVERY MATRIX OPERATIONAL • 0 ADJACENT CLUSTERS DISCOVERED
+          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
+            No public channels discovered yet. Use the chat tab to set up a new community.
           </div>
         </div>
       )}
@@ -242,17 +233,17 @@ export default function App() {
       {activeTab === 'live' && (
         <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Audio & Video Streams</h2>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor team channels.</p>
-          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px', fontFamily: 'monospace' }}>
-            STREAM ROUTER ACTIVE • SCANNING FOR LIVE BROADCAST CHANNELS...
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor active chat rooms.</p>
+          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
+            No live active streams running inside this channel node cluster right now.
           </div>
         </div>
       )}
 
       {activeTab === 'settings' && (
         <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Configurations</h2>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage authorization tokens, notifications, and profiles.</p>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Settings</h2>
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage notification preferences and connection status.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
@@ -260,7 +251,7 @@ export default function App() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Connection Status</span>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Secure / Connected</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Connected</span>
             </div>
           </div>
         </div>

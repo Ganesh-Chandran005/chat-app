@@ -6,11 +6,11 @@ export default function Sidebar({ rooms, activeRoomId, setActiveRoomId, setShowM
     <div style={{ width: '260px', height: '100%', backgroundColor: 'rgba(8, 6, 37, 0.4)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', zIndex: 20, backdropFilter: 'blur(12px)' }}>
       <div style={{ padding: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontWeight: '700', letterSpacing: '0.05em', fontSize: '12px', textTransform: 'uppercase', color: '#a855f7' }}>
-          Channels Core
+          Channels
         </span>
         <button 
           onClick={() => setShowModal(true)} 
-          style={{ width: '24px', height: '24px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyText: 'center', color: '#a1a1aa', cursor: 'pointer' }}
+          style={{ width: '24px', height: '24px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa', cursor: 'pointer' }}
         >
           <Plus style={{ width: '14px', height: '14px', margin: '0 auto' }} />
         </button>
@@ -19,7 +19,7 @@ export default function Sidebar({ rooms, activeRoomId, setActiveRoomId, setShowM
       <div style={{ padding: '12px' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', color: '#a1a1aa' }}>
           <Search style={{ width: '14px', height: '14px', marginRight: '8px', color: '#71717a' }} />
-          <input type="text" placeholder="Filter vectors..." style={{ bg: 'transparent', border: 'none', outline: 'none', width: '100%', backgroundColor: 'transparent', color: '#d4d4d8' }} />
+          <input type="text" placeholder="Search channels..." style={{ border: 'none', outline: 'none', width: '100%', backgroundColor: 'transparent', color: '#d4d4d8' }} />
         </div>
       </div>
 
