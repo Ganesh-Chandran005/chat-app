@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Compass, Layers, Radio, Settings, LogOut, Sparkles, LogIn } from 'lucide-react';
+import { MessageSquare, Compass, Radio, Settings, LogOut, Sparkles, LogIn, Plus, Users } from 'lucide-react';
 import { Sidebar, ChatRoom, UserPanel, Modal } from './components';
 import { db, auth, provider } from './firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -8,6 +8,10 @@ import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Navigation State: 'chat' | 'explore' | 'live' | 'settings'
+  const [activeTab, setActiveTab] = useState('chat');
+  
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -25,7 +29,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || activeTab !== 'chat') return;
     const q = query(collection(db, 'rooms'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const roomsData = snapshot.docs.map(doc => ({
@@ -38,10 +42,10 @@ export default function App() {
       }
     });
     return () => unsubscribe();
-  }, [user, activeRoomId]);
+  }, [user, activeRoomId, activeTab]);
 
   useEffect(() => {
-    if (!user || !activeRoomId) return;
+    if (!user || !activeRoomId || activeTab !== 'chat') return;
 
     const q = query(
       collection(db, 'rooms', activeRoomId, 'messages'),
@@ -65,7 +69,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [user, activeRoomId]);
+  }, [user, activeRoomId, activeTab]);
 
   const handleLogin = async () => {
     try {
@@ -81,6 +85,7 @@ export default function App() {
       setActiveRoomId('');
       setRooms([]);
       setMessages([]);
+      setActiveTab('chat');
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -95,13 +100,13 @@ export default function App() {
     try {
       const roomRef = await addDoc(collection(db, 'rooms'), {
         name: roomSlug,
-        desc: newRoomDesc || 'Custom operational vector chatroom.'
+        desc: newRoomDesc || 'General chat channel for team communication.'
       });
 
       await addDoc(collection(db, 'rooms', roomRef.id, 'messages'), {
-        user: 'System-Core',
-        avatar: '⚡',
-        text: `Room #${roomSlug} established cleanly inside Firebase Firestore.`,
+        user: 'System Bot',
+        avatar: '🤖',
+        text: `Welcome to the beginning of the #${roomSlug} channel!`,
         isSystem: true,
         createdAt: serverTimestamp()
       });
@@ -111,7 +116,7 @@ export default function App() {
       setNewRoomDesc('');
       setShowModal(false);
     } catch (error) {
-      console.error("Error creating room: ", error);
+      console.error("Error creating channel: ", error);
     }
   };
 
@@ -134,25 +139,25 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'monospace', letterSpacing: '0.2em', fontSize: '12px' }}>
-        INITIALIZING CORE SECURITY NODES...
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif', letterSpacing: '0.1em', fontSize: '14px' }}>
+        Loading ChatUp settings...
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", "Roboto", "Arial", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyText: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
         <div style={{ zIndex: 10, textAlign: 'center', maxWidth: '400px', width: '90%', padding: '40px 30px', borderRadius: '24px', backgroundColor: 'rgba(6, 4, 29, 0.4)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', margin: '0 auto 24px auto' }}>
             <Sparkles style={{ width: '24px', height: '24px', color: '#ffffff' }} />
           </div>
-          <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff', textTransform: 'uppercase', margin: '0 0 8px 0' }}>Welcome to ChatUp</h1>
-          <p style={{ fontSize: '13px', color: '#71717a', margin: '0 0 32px 0', fontWeight: '400' }}>Sign in to initialize secure real-time operational nodes.</p>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '0.02em', color: '#ffffff', margin: '0 0 8px 0' }}>Welcome to ChatUp</h1>
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 32px 0', fontWeight: '400' }}>Sign in to join communities and chat real-time.</p>
           <button onClick={handleLogin} style={{ width: '100%', padding: '14px', borderRadius: '14px', backgroundColor: '#9333ea', color: '#ffffff', fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(147, 51, 234, 0.3)', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-            <LogIn style={{ width: '16px', height: '16px' }} /> Authenticate via Google
+            <LogIn style={{ width: '16px', height: '16px' }} /> Sign In with Google
           </button>
         </div>
       </div>
@@ -163,62 +168,106 @@ export default function App() {
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
-      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.2)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.2)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-      {/* Control Navigation Strip */}
-      <div style={{ width: '64px', height: '100%', backgroundColor: 'rgba(6, 4, 29, 0.6)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', justifyContent: 'between', zIndex: 20, backdropFilter: 'blur(12px)', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', itemsCenter: 'center', width: '100%', alignItems: 'center', flex: 1 }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', cursor: 'pointer' }}>
+      {/* Main Global Icon Sidebar Nav */}
+      <div style={{ width: '72px', height: '100%', backgroundColor: 'rgba(6, 4, 29, 0.6)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', justifyContent: 'space-between', zIndex: 20, backdropFilter: 'blur(12px)', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', itemsCenter: 'center', width: '100%', alignItems: 'center', gap: '8px' }}>
+          
+          {/* Logo Brand Icon */}
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
             <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
           </div>
-          <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-          <MessageSquare style={{ width: '20px', height: '20px', color: '#a855f7', cursor: 'pointer' }} />
-          <Compass style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
-          <Layers style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
-          <Radio style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
+          
+          {/* Navigation Tab Nodes */}
+          <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+            <MessageSquare style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
+          </button>
+
+          <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+            <Compass style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
+          </button>
+
+          <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+            <Radio style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
+          </button>
+
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
-          <Settings style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
-          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', padding: 0, color: 'rgba(239, 68, 68, 0.7)', cursor: 'pointer' }}><LogOut style={{ width: '20px', height: '20px' }} /></button>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
+          <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+            <Settings style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
+          </button>
+
+          <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
+            <LogOut style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
+          </button>
         </div>
       </div>
 
-      {rooms.length === 0 ? (
-        <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
-          <p style={{ fontSize: '14px', color: '#a1a1aa', fontFamily: 'monospace', marginBottom: '16px' }}>NO CONNECTED ROOM NODES DETECTED IN CLOUD FIRESTORE.</p>
-          <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(147, 51, 234, 0.4)' }}>
-            + Compile First Channel Vector
-          </button>
+      {/* Dynamic Main Workspace Content Conditional Render Layer */}
+      {activeTab === 'chat' && (
+        rooms.length === 0 ? (
+          <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
+            <p style={{ fontSize: '15px', color: '#a1a1aa', marginBottom: '20px', fontWeight: '500' }}>No active chat channels available in the database.</p>
+            <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(147, 51, 234, 0.4)' }}>
+              + Create Your First Channel
+            </button>
+          </div>
+        ) : (
+          <>
+            <Sidebar rooms={rooms} activeRoomId={activeRoomId} setActiveRoomId={setActiveRoomId} setShowModal={setShowModal} />
+            <ChatRoom activeRoom={activeRoom} currentMessages={messages} inputMessage={inputMessage} setInputMessage={setInputMessage} handleSendMessage={handleSendMessage} />
+            <UserPanel currentUser={user} />
+          </>
+        )
+      )}
+
+      {activeTab === 'explore' && (
+        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column', justifyText: 'start' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
+          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px', fontFamily: 'monospace' }}>
+            GLOBAL CHANNEL DISCOVERY MATRIX OPERATIONAL • 0 ADJACENT CLUSTERS DISCOVERED
+          </div>
         </div>
-      ) : (
-        <>
-          <Sidebar 
-            rooms={rooms} 
-            activeRoomId={activeRoomId} 
-            setActiveRoomId={setActiveRoomId} 
-            setShowModal={setShowModal} 
-          />
-          <ChatRoom 
-            activeRoom={activeRoom}
-            currentMessages={messages}
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            handleSendMessage={handleSendMessage}
-          />
-          <UserPanel currentUser={user} />
-        </>
+      )}
+
+      {activeTab === 'live' && (
+        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Audio & Video Streams</h2>
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor team channels.</p>
+          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px', fontFamily: 'monospace' }}>
+            STREAM ROUTER ACTIVE • SCANNING FOR LIVE BROADCAST CHANNELS...
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Configurations</h2>
+          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage authorization tokens, notifications, and profiles.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user.displayName}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Connection Status</span>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Secure / Connected</span>
+            </div>
+          </div>
+        </div>
       )}
 
       {showModal && (
-        <Modal 
-          newRoomName={newRoomName}
-          setNewRoomName={setNewRoomName}
-          newRoomDesc={newRoomDesc}
-          setNewRoomDesc={setNewRoomDesc}
-          handleCreateRoom={handleCreateRoom}
-          setShowModal={setShowModal}
-        />
+        <Modal newRoomName={newRoomName} setNewRoomName={setNewRoomName} newRoomDesc={newRoomDesc} setNewRoomDesc={setNewRoomDesc} handleCreateRoom={handleCreateRoom} setShowModal={setShowModal} />
       )}
     </div>
   );
