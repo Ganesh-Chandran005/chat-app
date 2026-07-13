@@ -3,63 +3,67 @@ import { Hash, Bell, Shield, HelpCircle, Paperclip, Smile, Send } from 'lucide-r
 
 export default function ChatRoom({ activeRoom, currentMessages, inputMessage, setInputMessage, handleSendMessage }) {
   return (
-    <div className="flex-1 h-full flex flex-col z-20 bg-black/10 backdrop-blur-[2px]">
-      <div className="h-16 border-b border-white/5 px-6 flex items-center justify-between bg-[#06041d]/20 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <Hash className="w-5 h-5 text-purple-400" />
-          <div className="flex flex-col">
-            <h2 className="text-sm font-bold text-white tracking-wide uppercase">{activeRoom.name}</h2>
-            <p className="text-xs text-zinc-500 mt-0.5">{activeRoom.desc}</p>
+    <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', zIndex: 20, backgroundColor: 'rgba(0, 0, 0, 0.1)' }}>
+      {/* Header Container */}
+      <div style={{ height: '64px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(6, 4, 29, 0.2)', backdropFilter: 'blur(12px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Hash style={{ width: '20px', height: '20px', color: '#c084fc' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{activeRoom?.name || 'select-channel'}</h2>
+            <p style={{ fontSize: '12px', color: '#71717a', margin: '2px 0 0 0' }}>{activeRoom?.desc || 'Operational message logs'}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-zinc-400">
-          <div className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center cursor-pointer border border-transparent hover:border-white/5 transition-all">
-            <Bell className="w-4 h-4" />
-          </div>
-          <div className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center cursor-pointer border border-transparent hover:border-white/5 transition-all">
-            <Shield className="w-4 h-4" />
-          </div>
-          <div className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center cursor-pointer border border-transparent hover:border-white/5 transition-all">
-            <HelpCircle className="w-4 h-4" />
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', color: '#a1a1aa' }}>
+          <Bell style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+          <Shield style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+          <HelpCircle style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {currentMessages.map((msg) => (
-          <div key={msg.id} className={`flex items-start gap-4 max-w-3xl ${msg.isSystem ? 'bg-purple-950/20 border border-purple-500/10 p-3 rounded-xl backdrop-blur-sm' : ''}`}>
-            <div className="w-9 h-9 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-base shadow-md shrink-0">
-              {msg.avatar}
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-baseline gap-2">
-                <span className={`text-xs font-bold tracking-wide ${msg.isSystem ? 'text-purple-400' : 'text-zinc-200'}`}>{msg.user}</span>
-                <span className="text-[10px] text-zinc-600">{msg.time}</span>
+      {/* Message Log Grid View */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {currentMessages.length === 0 ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#71717a', fontSize: '13px', fontFamily: 'monospace' }}>
+            NO METRICS TRANSFERRED IN THIS VECTOR NODE YET.
+          </div>
+        ) : (
+          currentMessages.map((msg) => (
+            <div key={msg.id} style={{ display: 'flex', alignItems: 'start', gap: '16px', padding: msg.isSystem ? '12px' : '0', backgroundColor: msg.isSystem ? 'rgba(147, 51, 234, 0.05)' : 'transparent', border: msg.isSystem ? '1px solid rgba(147, 51, 234, 0.1)' : 'none', borderRadius: '12px' }}>
+              {typeof msg.avatar === 'string' && msg.avatar.startsWith('http') ? (
+                <img src={msg.avatar} alt="avatar" style={{ width: '36px', height: '36px', borderRadius: '12px', objectFit: 'cover', border: '1px solid rgba(255, 255, 255, 0.1)' }} />
+              ) : (
+                <div style={{ width: '36px', height: '36px', borderRadius: '12px', backgroundColor: '#27272a', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                  {msg.avatar || '🌌'}
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.02em', color: msg.isSystem ? '#c084fc' : '#e4e4e7' }}>{msg.user}</span>
+                  <span style={{ fontSize: '10px', color: '#52525b' }}>{msg.time}</span>
+                </div>
+                <p style={{ fontSize: '14px', mt: '4px', margin: '4px 0 0 0', lineHeight: '1.5', color: msg.isSystem ? '#a1a1aa' : '#d4d4d8', fontFamily: msg.isSystem ? 'monospace' : 'inherit' }}>{msg.text}</p>
               </div>
-              <p className={`text-sm mt-1 leading-relaxed ${msg.isSystem ? 'text-zinc-400 font-mono text-xs' : 'text-zinc-300'}`}>{msg.text}</p>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      <div className="p-4 border-t border-white/5 bg-[#06041d]/40 backdrop-blur-md">
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-center gap-3 bg-black/30 border border-white/5 focus-within:border-purple-500/30 rounded-xl px-4 py-3 transition-all shadow-inner">
-          <button type="button" className="text-zinc-500 hover:text-zinc-300 transition-colors">
-            <Paperclip className="w-4 h-4" />
-          </button>
+      {/* Input Action Form Tray */}
+      <div style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(6, 4, 29, 0.4)' }}>
+        <form onSubmit={handleSendMessage} style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '14px', padding: '12px 16px' }}>
+          <button type="button" style={{ color: '#52525b', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}><Paperclip style={{ width: '16px', height: '16px' }} /></button>
           <input 
             type="text" 
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder={`Signal message down to #${activeRoom.name}...`} 
-            className="bg-transparent border-none outline-none flex-1 text-sm text-zinc-200 placeholder-zinc-600"
+            placeholder={activeRoom?.name ? `Signal message down to #${activeRoom.name}...` : 'Select a channel node to write...'} 
+            disabled={!activeRoom?.name || activeRoom.name === 'Loading...'}
+            style={{ backgroundColor: 'transparent', border: 'none', outline: 'none', flex: 1, fontSize: '14px', color: '#e4e4e7' }}
           />
-          <button type="button" className="text-zinc-500 hover:text-zinc-300 transition-colors">
-            <Smile className="w-4 h-4" />
-          </button>
-          <div className="w-[1px] h-5 bg-white/10 mx-1" />
-          <button type="submit" className="w-7 h-7 rounded-lg bg-purple-600 hover:bg-purple-500 flex items-center justify-center text-white shadow-md shadow-purple-900/40 transition-all hover:scale-105">
-            <Send className="w-3.5 h-3.5" />
+          <button type="button" style={{ color: '#52525b', border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}><Smile style={{ width: '16px', height: '16px' }} /></button>
+          <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+          <button type="submit" style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#9333ea', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', cursor: 'pointer' }}>
+            <Send style={{ width: '14px', height: '14px', margin: '0 auto' }} />
           </button>
         </form>
       </div>

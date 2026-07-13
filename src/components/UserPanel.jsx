@@ -3,21 +3,21 @@ import { Users } from 'lucide-react';
 
 export default function UserPanel({ currentUser }) {
   return (
-    <div className="w-60 h-full bg-[#080625]/20 border-l border-white/5 hidden xl:flex flex-col z-20 backdrop-blur-md">
-      <div className="p-4 border-b border-white/5 flex items-center gap-2 text-zinc-400">
-        <Users className="w-4 h-4 text-purple-400" />
-        <span className="text-xs font-bold tracking-wider uppercase">Active Node Cluster</span>
+    <div style={{ width: '240px', height: '100%', backgroundColor: 'rgba(8, 6, 37, 0.2)', borderLeft: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', zIndex: 20, backdropFilter: 'blur(12px)' }}>
+      <div style={{ padding: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', gap: '8px', color: '#a1a1aa' }}>
+        <Users style={{ width: '16px', height: '16px', color: '#c084fc' }} />
+        <span style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Active Cluster</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-purple-950/20 border border-purple-500/10 cursor-pointer">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px', borderRadius: '10px', backgroundColor: 'rgba(147, 51, 234, 0.05)', border: '1px solid rgba(147, 51, 234, 0.1)' }}>
           {currentUser?.photoURL ? (
-            <img src={currentUser.photoURL} alt="avatar" className="w-7 h-7 rounded-lg object-cover border border-purple-500/40" />
+            <img src={currentUser.photoURL} alt="profile" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(147, 51, 234, 0.4)' }} />
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-xs">🌌</div>
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: 'rgba(147, 51, 234, 0.2)', border: '1px solid rgba(147, 51, 234, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>🌌</div>
           )}
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-semibold text-zinc-300 truncate">{currentUser?.displayName || 'User'}</span>
-            <span className="text-[9px] text-purple-400">Active Operator</span>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#e4e4e7', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser?.displayName || 'Active Operator'}</span>
+            <span style={{ fontSize: '9px', color: '#a855f7', marginTop: '1px' }}>System Admin</span>
           </div>
         </div>
       </div>

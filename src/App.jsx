@@ -142,101 +142,16 @@ export default function App() {
 
   if (!user) {
     return (
-      <div 
-        style={{ 
-          width: '100vw', 
-          height: '100vh', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          backgroundColor: '#030014',
-          fontFamily: '"Inter", "Roboto", "Arial", sans-serif',
-          margin: 0,
-          padding: 0,
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", "Roboto", "Arial", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-
-        <div 
-          style={{ 
-            zIndex: 10, 
-            textAlign: 'center', 
-            maxWidth: '400px', 
-            width: '90%', 
-            padding: '40px 30px', 
-            borderRadius: '24px', 
-            backgroundColor: 'rgba(6, 4, 29, 0.4)', 
-            border: '1px solid rgba(255, 255, 255, 0.08)', 
-            backdropFilter: 'blur(20px)', 
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
-          }}
-        >
-          <div 
-            style={{ 
-              width: '56px', 
-              height: '56px', 
-              borderRadius: '16px', 
-              background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', 
-              margin: '0 auto 24px auto'
-            }}
-          >
+        <div style={{ zIndex: 10, textAlign: 'center', maxWidth: '400px', width: '90%', padding: '40px 30px', borderRadius: '24px', backgroundColor: 'rgba(6, 4, 29, 0.4)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', margin: '0 auto 24px auto' }}>
             <Sparkles style={{ width: '24px', height: '24px', color: '#ffffff' }} />
           </div>
-
-          <h1 
-            style={{ 
-              fontSize: '24px', 
-              fontWeight: '800', 
-              letterSpacing: '0.05em', 
-              color: '#ffffff', 
-              textTransform: 'uppercase', 
-              margin: '0 0 8px 0' 
-            }}
-          >
-            Welcome to ChatUp
-          </h1>
-          
-          <p 
-            style={{ 
-              fontSize: '13px', 
-              color: '#71717a', 
-              margin: '0 0 32px 0', 
-              fontWeight: '400' 
-            }}
-          >
-            Sign in to initialize secure real-time operational nodes.
-          </p>
-
-          <button 
-            onClick={handleLogin}
-            style={{ 
-              width: '100%', 
-              padding: '14px', 
-              borderRadius: '14px', 
-              backgroundColor: '#9333ea', 
-              color: '#ffffff', 
-              fontWeight: '600', 
-              fontSize: '14px', 
-              border: 'none', 
-              cursor: 'pointer', 
-              boxShadow: '0 8px 20px rgba(147, 51, 234, 0.3)', 
-              transition: 'all 0.2s ease',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#a855f7'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#9333ea'}
-          >
+          <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff', textTransform: 'uppercase', margin: '0 0 8px 0' }}>Welcome to ChatUp</h1>
+          <p style={{ fontSize: '13px', color: '#71717a', margin: '0 0 32px 0', fontWeight: '400' }}>Sign in to initialize secure real-time operational nodes.</p>
+          <button onClick={handleLogin} style={{ width: '100%', padding: '14px', borderRadius: '14px', backgroundColor: '#9333ea', color: '#ffffff', fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(147, 51, 234, 0.3)', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
             <LogIn style={{ width: '16px', height: '16px' }} /> Authenticate via Google
           </button>
         </div>
@@ -244,58 +159,56 @@ export default function App() {
     );
   }
 
-  const activeRoom = rooms.find(r => r.id === activeRoomId) || { name: 'Loading...', desc: '' };
+  const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
 
   return (
-    <div className="relative w-screen h-screen flex overflow-hidden bg-[#030014] select-none">
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none" />
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
+      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.2)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.2)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
-      <div className="w-16 h-full bg-[#06041d]/60 border-r border-white/5 flex flex-col items-center py-6 justify-between z-20 backdrop-blur-md">
-        <div className="flex flex-col gap-6 items-center w-full">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 text-white" />
+      {/* Control Navigation Strip */}
+      <div style={{ width: '64px', height: '100%', backgroundColor: 'rgba(6, 4, 29, 0.6)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0', justifyContent: 'between', zIndex: 20, backdropFilter: 'blur(12px)', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', itemsCenter: 'center', width: '100%', alignItems: 'center', flex: 1 }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', cursor: 'pointer' }}>
+            <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
           </div>
-          <div className="w-8 h-[1px] bg-white/10" />
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-purple-400 border border-purple-500/20 cursor-pointer">
-            <MessageSquare className="w-5 h-5" />
-          </div>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
-            <Compass className="w-5 h-5" />
-          </div>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
-            <Layers className="w-5 h-5" />
-          </div>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
-            <Radio className="w-5 h-5" />
-          </div>
+          <div style={{ width: '32px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+          <MessageSquare style={{ width: '20px', height: '20px', color: '#a855f7', cursor: 'pointer' }} />
+          <Compass style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
+          <Layers style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
+          <Radio style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
         </div>
-        <div className="flex flex-col gap-5 items-center w-full">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-200 cursor-pointer transition-colors">
-            <Settings className="w-5 h-5" />
-          </div>
-          <button onClick={handleLogout} className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500/70 hover:text-red-400 cursor-pointer transition-colors">
-            <LogOut className="w-5 h-5" />
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+          <Settings style={{ width: '20px', height: '20px', color: '#52525b', cursor: 'pointer' }} />
+          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', padding: 0, color: 'rgba(239, 68, 68, 0.7)', cursor: 'pointer' }}><LogOut style={{ width: '20px', height: '20px' }} /></button>
         </div>
       </div>
 
-      <Sidebar 
-        rooms={rooms} 
-        activeRoomId={activeRoomId} 
-        setActiveRoomId={setActiveRoomId} 
-        setShowModal={setShowModal} 
-      />
-
-      <ChatRoom 
-        activeRoom={activeRoom}
-        currentMessages={messages}
-        inputMessage={inputMessage}
-        setInputMessage={setInputMessage}
-        handleSendMessage={handleSendMessage}
-      />
-
-      <UserPanel currentUser={user} />
+      {rooms.length === 0 ? (
+        <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
+          <p style={{ fontSize: '14px', color: '#a1a1aa', fontFamily: 'monospace', marginBottom: '16px' }}>NO CONNECTED ROOM NODES DETECTED IN CLOUD FIRESTORE.</p>
+          <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(147, 51, 234, 0.4)' }}>
+            + Compile First Channel Vector
+          </button>
+        </div>
+      ) : (
+        <>
+          <Sidebar 
+            rooms={rooms} 
+            activeRoomId={activeRoomId} 
+            setActiveRoomId={setActiveRoomId} 
+            setShowModal={setShowModal} 
+          />
+          <ChatRoom 
+            activeRoom={activeRoom}
+            currentMessages={messages}
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            handleSendMessage={handleSendMessage}
+          />
+          <UserPanel currentUser={user} />
+        </>
+      )}
 
       {showModal && (
         <Modal 
