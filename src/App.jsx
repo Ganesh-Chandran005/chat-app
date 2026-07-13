@@ -122,7 +122,7 @@ export default function App() {
     try {
       await addDoc(collection(db, 'rooms', activeRoomId, 'messages'), {
         user: user.displayName,
-        avatar: user.photoURL ? <img src={user.photoURL} alt="avatar" className="w-full h-full rounded-xl object-cover" /> : '🌌',
+        avatar: user.photoURL ? user.photoURL : '🌌',
         text: inputMessage,
         createdAt: serverTimestamp()
       });
@@ -134,7 +134,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-[#030014] text-purple-400 text-sm font-mono tracking-widest">
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'monospace', letterSpacing: '0.2em', fontSize: '12px' }}>
         INITIALIZING CORE SECURITY NODES...
       </div>
     );
@@ -142,20 +142,102 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-[#030014] overflow-hidden select-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="z-10 text-center max-w-sm px-6 py-8 rounded-2xl bg-[#06041d]/40 border border-white/5 backdrop-blur-md shadow-2xl">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] mx-auto mb-6">
-            <Sparkles className="w-6 h-6 text-white" />
+      <div 
+        style={{ 
+          width: '100vw', 
+          height: '100vh', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          backgroundColor: '#030014',
+          fontFamily: '"Inter", "Roboto", "Arial", sans-serif',
+          margin: 0,
+          padding: 0,
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
+
+        <div 
+          style={{ 
+            zIndex: 10, 
+            textAlign: 'center', 
+            maxWidth: '400px', 
+            width: '90%', 
+            padding: '40px 30px', 
+            borderRadius: '24px', 
+            backgroundColor: 'rgba(6, 4, 29, 0.4)', 
+            border: '1px solid rgba(255, 255, 255, 0.08)', 
+            backdropFilter: 'blur(20px)', 
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
+          }}
+        >
+          <div 
+            style={{ 
+              width: '56px', 
+              height: '56px', 
+              borderRadius: '16px', 
+              background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', 
+              margin: '0 auto 24px auto'
+            }}
+          >
+            <Sparkles style={{ width: '24px', height: '24px', color: '#ffffff' }} />
           </div>
-          <h1 className="text-xl font-bold tracking-wider text-white uppercase mb-2">Ambient Terminal</h1>
-          <p className="text-xs text-zinc-500 mb-6">Secure decryption node wrapper application sequence.</p>
+
+          <h1 
+            style={{ 
+              fontSize: '24px', 
+              fontWeight: '800', 
+              letterSpacing: '0.05em', 
+              color: '#ffffff', 
+              textTransform: 'uppercase', 
+              margin: '0 0 8px 0' 
+            }}
+          >
+            Welcome to ChatUp
+          </h1>
+          
+          <p 
+            style={{ 
+              fontSize: '13px', 
+              color: '#71717a', 
+              margin: '0 0 32px 0', 
+              fontWeight: '400' 
+            }}
+          >
+            Sign in to initialize secure real-time operational nodes.
+          </p>
+
           <button 
             onClick={handleLogin}
-            className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm shadow-lg shadow-purple-900/40 transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+            style={{ 
+              width: '100%', 
+              padding: '14px', 
+              borderRadius: '14px', 
+              backgroundColor: '#9333ea', 
+              color: '#ffffff', 
+              fontWeight: '600', 
+              fontSize: '14px', 
+              border: 'none', 
+              cursor: 'pointer', 
+              boxShadow: '0 8px 20px rgba(147, 51, 234, 0.3)', 
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#a855f7'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#9333ea'}
           >
-            <LogIn className="w-4 h-4" /> Authenticate via Google
+            <LogIn style={{ width: '16px', height: '16px' }} /> Authenticate via Google
           </button>
         </div>
       </div>
