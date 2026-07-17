@@ -31,12 +31,10 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        // Clear the persistence token once user validation settles
         sessionStorage.removeItem('chatup_auth_pending');
         setAuthLoading(false);
         setLoading(false);
       } else {
-        // If no user is returned, check if an authentication callback is finishing in the background
         const isPending = sessionStorage.getItem('chatup_auth_pending');
         if (!isPending) {
           setUser(null);
@@ -93,7 +91,6 @@ export default function App() {
 
   const handleLogin = async () => {
     setAuthLoading(true);
-    // Set a cross-refresh session anchor to block state dropping on new account creation
     sessionStorage.setItem('chatup_auth_pending', 'true');
     
     try {
@@ -165,7 +162,6 @@ export default function App() {
     }
   };
 
-  // Check storage anchor to see if an identity callback is running
   const isAuthBridgeActive = loading || authLoading || sessionStorage.getItem('chatup_auth_pending') === 'true';
 
   if (isAuthBridgeActive) {
@@ -200,60 +196,91 @@ export default function App() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Dynamic Global Navigation Rail */}
+      {/* Dynamic Global Responsive Navigation System */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
-        height: isMobile ? '60px' : '100%', 
-        backgroundColor: 'rgba(6, 4, 29, 0.85)', 
+        height: isMobile ? '64px' : '100%', 
+        backgroundColor: 'rgba(6, 4, 29, 0.9)', 
         borderRight: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.05)', 
         borderTop: isMobile ? '1px solid rgba(255, 255, 255, 0.05)' : 'none', 
         display: 'flex', 
         flexDirection: isMobile ? 'row' : 'column', 
         alignItems: 'center', 
-        padding: isMobile ? '0 12px' : '20px 0', 
+        padding: isMobile ? '0 8px' : '20px 0', 
         justifyContent: 'space-between', 
         zIndex: 30, 
-        backdropFilter: 'blur(12px)', 
+        backdropFilter: 'blur(16px)', 
         boxSizing: 'border-box' 
       }}>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', width: isMobile ? 'auto' : '100%', alignItems: 'center', gap: isMobile ? '20px' : '8px', flex: 1, justifyContent: isMobile ? 'space-around' : 'flex-start' }}>
-          {!isMobile && (
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-              <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+        {isMobile ? (
+          /* Mobile Full Features Horizontal Spread Grid */
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', justifyItems: 'center', alignItems: 'center' }}>
+            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+              <MessageSquare style={{ width: '20px', height: '20px' }} />
+              <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
+            </button>
+
+            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+              <Compass style={{ width: '20px', height: '20px' }} />
+              <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
+            </button>
+
+            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+              <Radio style={{ width: '20px', height: '20px' }} />
+              <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
+            </button>
+
+            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+              <Settings style={{ width: '20px', height: '20px' }} />
+              <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
+            </button>
+
+            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.8)' }}>
+              <LogOut style={{ width: '20px', height: '20px' }} />
+              <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
+            </button>
+          </div>
+        ) : (
+          /* Desktop Vertical Stack Layout */
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', gap: '8px', flex: 1 }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+              </div>
+              
+              <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+                <MessageSquare style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
+              </button>
+
+              <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+                <Compass style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
+              </button>
+
+              <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+                <Radio style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
+              </button>
             </div>
-          )}
-          
-          <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
-            <MessageSquare style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
-          </button>
 
-          <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
-            <Compass style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
-          </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'end', width: '100%' }}>
+              <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+                <Settings style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
+              </button>
 
-          <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
-            <Radio style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', alignItems: 'center', justifyContent: 'end' }}>
-          <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
-            <Settings style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
-          </button>
-
-          <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
-            <LogOut style={{ width: '20px', height: '20px' }} />
-            <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
-          </button>
-        </div>
+              <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
+                <LogOut style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Main Container Layout */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 60px)' : '100%', width: '100%', overflow: 'hidden' }}>
+      {/* Main Content Workspace Layout */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 64px)' : '100%', width: '100%', overflow: 'hidden' }}>
         {activeTab === 'chat' && (
           rooms.length === 0 ? (
             <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
