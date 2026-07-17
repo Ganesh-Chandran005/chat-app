@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageSquare, Compass, Radio, Settings, LogOut, Sparkles, LogIn } from 'lucide-react';
 import { Sidebar, ChatRoom, UserPanel, Modal } from './components';
 import { db, auth, provider } from './firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
 export default function App() {
@@ -28,16 +28,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // 1. First check if we are returning from a mobile redirect authentication cycle
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect auth resolution failed:", error);
+      });
+
+    // 2. Setup the persistent observer listener
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setAuthLoading(false);
-        setLoading(false);
-      } else {
-        setUser(null);
-        setAuthLoading(false);
-        setLoading(false);
-      }
+      setUser(currentUser);
+      setLoading(false);
+      setAuthLoading(false);
     });
 
     return () => unsubscribeAuth();
@@ -89,7 +95,8 @@ export default function App() {
   const handleLogin = async () => {
     setAuthLoading(true);
     try {
-      await signInWithPopup(auth, provider);
+      // Swapped to signInWithRedirect to guarantee flawless mobile authentication stability
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Authentication failed:", error);
       setAuthLoading(false);
@@ -187,7 +194,7 @@ export default function App() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Dynamic Global Navigation Bar System with Mobile Touch Optimization */}
+      {/* Dynamic Global Navigation Bar System */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
         height: isMobile ? '64px' : '100%', 
@@ -202,7 +209,7 @@ export default function App() {
         zIndex: 30, 
         backdropFilter: 'blur(16px)', 
         boxSizing: 'border-box',
-        touchAction: 'manipulation' /* Suppresses multi-tap zoom freezes natively */
+        touchAction: 'manipulation'
       }}>
         {isMobile ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', height: '100%', justifyItems: 'center', alignItems: 'center' }}>
