@@ -8,6 +8,7 @@ import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false); // Prevents state flashing on mobile authentication
   const [activeTab, setActiveTab] = useState('chat');
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState('');
@@ -30,6 +31,7 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      setAuthLoading(false); // Auth confirmation received, release the login screen lock
     });
     return () => unsubscribeAuth();
   }, []);
@@ -78,10 +80,12 @@ export default function App() {
   }, [user, activeRoomId, activeTab]);
 
   const handleLogin = async () => {
+    setAuthLoading(true); // Lock the screen to intercept mobile layout flash loops
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Authentication failed:", error);
+      setAuthLoading(false);
     }
   };
 
@@ -143,10 +147,10 @@ export default function App() {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif', letterSpacing: '0.1em', fontSize: '14px' }}>
-        Loading ChatUp settings...
+        Authenticating and sync settings...
       </div>
     );
   }
@@ -214,7 +218,7 @@ export default function App() {
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', alignItems: 'center', justifyContent: 'end' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', itemsCenter: 'center', justifyContent: 'end' }}>
           <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
             <Settings style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
@@ -227,7 +231,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Container Layout */}
+      {/* Main Content Pane */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 60px)' : '100%', width: '100%', overflow: 'hidden' }}>
         {activeTab === 'chat' && (
           rooms.length === 0 ? (
