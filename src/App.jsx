@@ -17,8 +17,6 @@ export default function App() {
   const [newRoomDesc, setNewRoomDesc] = useState('');
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  
-  // Mobile responsive helper state
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
@@ -30,13 +28,9 @@ export default function App() {
   useEffect(() => {
     getRedirectResult(auth)
       .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-        }
+        if (result?.user) setUser(result.user);
       })
-      .catch((error) => {
-        console.error("Redirect auth resolution failed:", error);
-      });
+      .catch((error) => console.error("Redirect auth failed:", error));
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -51,10 +45,7 @@ export default function App() {
     if (!user || activeTab !== 'chat') return;
     const q = query(collection(db, 'rooms'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const roomsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setRooms(roomsData);
       if (roomsData.length > 0 && !activeRoomId) {
         setActiveRoomId(roomsData[0].id);
@@ -65,12 +56,7 @@ export default function App() {
 
   useEffect(() => {
     if (!user || !activeRoomId || activeTab !== 'chat') return;
-
-    const q = query(
-      collection(db, 'rooms', activeRoomId, 'messages'),
-      orderBy('createdAt', 'asc')
-    );
-
+    const q = query(collection(db, 'rooms', activeRoomId, 'messages'), orderBy('createdAt', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messagesData = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -78,15 +64,10 @@ export default function App() {
         if (data.createdAt?.toDate) {
           formattedTime = data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-        return {
-          id: doc.id,
-          ...data,
-          time: formattedTime
-        };
+        return { id: doc.id, ...data, time: formattedTime };
       });
       setMessages(messagesData);
     });
-
     return () => unsubscribe();
   }, [user, activeRoomId, activeTab]);
 
@@ -95,7 +76,7 @@ export default function App() {
     try {
       await signInWithRedirect(auth, provider);
     } catch (error) {
-      console.error("Authentication failed:", error);
+      console.error(error);
       setAuthLoading(false);
     }
   };
@@ -109,22 +90,16 @@ export default function App() {
       setMessages([]);
       setActiveTab('chat');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error(error);
     }
   };
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
     if (!newRoomName.trim()) return;
-
     const roomSlug = newRoomName.toLowerCase().replace(/\s+/g, '-');
-
     try {
-      const roomRef = await addDoc(collection(db, 'rooms'), {
-        name: roomSlug,
-        desc: newRoomDesc || 'General chat channel for team communication.'
-      });
-
+      const roomRef = await addDoc(collection(db, 'rooms'), { name: roomSlug, desc: newRoomDesc || '' });
       await addDoc(collection(db, 'rooms', roomRef.id, 'messages'), {
         user: 'System Bot',
         avatar: '🤖',
@@ -132,56 +107,45 @@ export default function App() {
         isSystem: true,
         createdAt: serverTimestamp()
       });
-
       setActiveRoomId(roomRef.id);
       setNewRoomName('');
       setNewRoomDesc('');
       setShowModal(false);
     } catch (error) {
-      console.error("Error creating channel: ", error);
+      console.error(error);
     }
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || !activeRoomId) return;
-
     try {
       await addDoc(collection(db, 'rooms', activeRoomId, 'messages'), {
         user: user.displayName,
-        avatar: user.photoURL ? user.photoURL : '🌌',
+        avatar: user.photoURL || '🌌',
         text: inputMessage,
         createdAt: serverTimestamp()
       });
       setInputMessage('');
     } catch (error) {
-      console.error("Error sending message: ", error);
+      console.error(error);
     }
   };
 
   if (loading || authLoading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif', letterSpacing: '0.1em', fontSize: '14px' }}>
-        Authenticating identity connection and initializing application workspace...
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif' }}>
+        Loading ChatUp...
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", sans-serif', margin: 0, padding: 0, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-        <div style={{ zIndex: 10, textAlign: 'center', maxWidth: '400px', width: '90%', padding: '40px 30px', borderRadius: '24px', backgroundColor: 'rgba(6, 4, 29, 0.4)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(147, 51, 234, 0.4)', margin: '0 auto 24px auto' }}>
-            <Sparkles style={{ width: '24px', height: '24px', color: '#ffffff' }} />
-          </div>
-          <h1 style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '0.02em', color: '#ffffff', margin: '0 0 8px 0' }}>Welcome to ChatUp</h1>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 32px 0', fontWeight: '400' }}>Sign in to join communities and chat real-time.</p>
-          <button onClick={handleLogin} style={{ width: '100%', padding: '14px', borderRadius: '14px', backgroundColor: '#9333ea', color: '#ffffff', fontWeight: '600', fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 20px rgba(147, 51, 234, 0.3)', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-            <LogIn style={{ width: '16px', height: '16px' }} /> Sign In with Google
-          </button>
-        </div>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', fontFamily: '"Inter", sans-serif' }}>
+        <button onClick={handleLogin} style={{ padding: '14px 28px', borderRadius: '14px', backgroundColor: '#9333ea', color: '#fff', border: 'none', fontWeight: '600', cursor: 'pointer' }}>
+          Sign In with Google
+        </button>
       </div>
     );
   }
@@ -189,99 +153,53 @@ export default function App() {
   const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Re-Engineered Mobile Navigation Bar Grid Matrix */}
+      {/* Fixed Bottom Navigation Bar for Mobile */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
         height: isMobile ? '64px' : '100%', 
         backgroundColor: 'rgba(6, 4, 29, 0.95)', 
-        borderRight: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.05)', 
-        borderTop: isMobile ? '1px solid rgba(255, 255, 255, 0.05)' : 'none', 
+        borderTop: isMobile ? '1px solid rgba(255, 255, 255, 0.05)' : 'none',
+        borderRight: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
         display: 'flex', 
         flexDirection: isMobile ? 'row' : 'column', 
-        alignItems: 'center', 
-        padding: isMobile ? '4px 0 8px 0' : '20px 0', 
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
         zIndex: 30, 
-        backdropFilter: 'blur(20px)', 
-        boxSizing: 'border-box',
-        touchAction: 'pan-y', /* Explicitly locks out mobile multi-finger browser zoom freezes */
-        position: isMobile ? 'relative' : 'static'
+        boxSizing: 'border-box'
       }}>
-        {isMobile ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', height: '100%', justifyItems: 'center', alignItems: 'center' }}>
-            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === '#c084fc' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
-              <MessageSquare style={{ width: '20px', height: '20px', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>Chats</span>
-            </button>
-
-            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'explore' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
-              <Compass style={{ width: '20px', height: '20px', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>Explore</span>
-            </button>
-
-            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'live' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
-              <Radio style={{ width: '20px', height: '20px', color: activeTab === 'live' ? '#c084fc' : '#52525b' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>Streams</span>
-            </button>
-
-            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'settings' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
-              <Settings style={{ width: '20px', height: '20px', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>Settings</span>
-            </button>
-
-            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: 'rgba(239, 68, 68, 0.9)', touchAction: 'manipulation', padding: '4px 0' }}>
-              <LogOut style={{ width: '20px', height: '20px', color: 'rgba(239, 68, 68, 0.9)' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', color: 'rgba(239, 68, 68, 0.9)' }}>Logout</span>
-            </button>
-          </div>
-        ) : (
-          <>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', gap: '8px', flex: 1 }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
-              </div>
-              
-              <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
-                <MessageSquare style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
-              </button>
-
-              <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
-                <Compass style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
-              </button>
-
-              <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
-                <Radio style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'end', width: '100%' }}>
-              <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
-                <Settings style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
-              </button>
-
-              <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
-                <LogOut style={{ width: '20px', height: '20px' }} />
-                <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
-              </button>
-            </div>
-          </>
-        )}
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'space-around' }}>
+          <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifySelf: 'center', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+            <MessageSquare style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '10px', marginTop: '2px' }}>Chats</span>
+          </button>
+          <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifySelf: 'center', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+            <Compass style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '10px', marginTop: '2px' }}>Explore</span>
+          </button>
+          <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifySelf: 'center', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+            <Radio style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '10px', marginTop: '2px' }}>Streams</span>
+          </button>
+          <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifySelf: 'center', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+            <Settings style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '10px', marginTop: '2px' }}>Settings</span>
+          </button>
+          <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifySelf: 'center', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.9)' }}>
+            <LogOut style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '10px', marginTop: '2px' }}>Logout</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Content Workspace Layout Panel */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 64px)' : '100%', width: '100%', overflow: 'hidden' }}>
+      {/* Main Panel Frame Layout */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: '100%', width: '100%', overflow: 'hidden' }}>
         {activeTab === 'chat' && (
           rooms.length === 0 ? (
-            <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
-              <p style={{ fontSize: '15px', color: '#a1a1aa', marginBottom: '20px', fontWeight: '500' }}>No active chat channels available in the database.</p>
-              <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}>
-                + Create Your First Channel
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+              <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer' }}>
+                + Create Channel
               </button>
             </div>
           ) : (
@@ -293,40 +211,12 @@ export default function App() {
           )
         )}
 
-        {activeTab === 'explore' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
-            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
-            <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
-              No public channels discovered yet. Use the chat tab to set up a new community.
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'live' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Streams</h2>
-            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor active chat rooms.</p>
-            <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
-              No active live streams running inside this channel node cluster right now.
-            </div>
-          </div>
-        )}
-
+        {activeTab === 'explore' && <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}><h2>Explore</h2></div>}
+        {activeTab === 'live' && <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}><h2>Streams</h2></div>}
         {activeTab === 'settings' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Settings</h2>
-            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage notification preferences and connection status.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user?.displayName}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Status</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Connected</span>
-              </div>
-            </div>
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+            <h2>Settings</h2>
+            <p>User: {user?.displayName}</p>
           </div>
         )}
       </div>
