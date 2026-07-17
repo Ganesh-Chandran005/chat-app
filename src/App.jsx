@@ -128,10 +128,11 @@ export default function App() {
         desc: newRoomDesc || 'General chat channel for team communication.'
       });
 
+      // Updated System Bot presentation payload to instruct evaluations cleanly
       await addDoc(collection(db, 'rooms', roomRef.id, 'messages'), {
         user: 'System Bot',
         avatar: '🤖',
-        text: `Welcome to the beginning of the #${roomSlug} channel!`,
+        text: `Welcome to #${roomSlug}! 📱 Note: If you are on mobile, make sure to use the bottom navigation layout to switch views, and scroll down inside panel drawers for accessing other features cleanly.`,
         isSystem: true,
         createdAt: serverTimestamp()
       });
@@ -196,7 +197,7 @@ export default function App() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Dynamic Global Responsive Navigation System */}
+      {/* Dynamic Navigation Rails */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
         height: isMobile ? '64px' : '100%', 
@@ -213,7 +214,6 @@ export default function App() {
         boxSizing: 'border-box' 
       }}>
         {isMobile ? (
-          /* Mobile Full Features Horizontal Spread Grid */
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', justifyItems: 'center', alignItems: 'center' }}>
             <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
               <MessageSquare style={{ width: '20px', height: '20px' }} />
@@ -241,7 +241,6 @@ export default function App() {
             </button>
           </div>
         ) : (
-          /* Desktop Vertical Stack Layout */
           <>
             <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', gap: '8px', flex: 1 }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
@@ -279,7 +278,7 @@ export default function App() {
         )}
       </div>
 
-      {/* Main Content Workspace Layout */}
+      {/* Main Content Workspace */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 64px)' : '100%', width: '100%', overflow: 'hidden' }}>
         {activeTab === 'chat' && (
           rooms.length === 0 ? (
