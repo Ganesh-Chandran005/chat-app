@@ -28,7 +28,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // 1. First check if we are returning from a mobile redirect authentication cycle
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
@@ -39,7 +38,6 @@ export default function App() {
         console.error("Redirect auth resolution failed:", error);
       });
 
-    // 2. Setup the persistent observer listener
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -95,7 +93,6 @@ export default function App() {
   const handleLogin = async () => {
     setAuthLoading(true);
     try {
-      // Swapped to signInWithRedirect to guarantee flawless mobile authentication stability
       await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Authentication failed:", error);
@@ -194,7 +191,7 @@ export default function App() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Dynamic Global Navigation Bar System */}
+      {/* Re-Engineered Mobile Navigation Bar Grid Matrix */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
         height: isMobile ? '64px' : '100%', 
@@ -204,38 +201,39 @@ export default function App() {
         display: 'flex', 
         flexDirection: isMobile ? 'row' : 'column', 
         alignItems: 'center', 
-        padding: isMobile ? '0' : '20px 0', 
+        padding: isMobile ? '4px 0 8px 0' : '20px 0', 
         justifyContent: 'space-between', 
         zIndex: 30, 
-        backdropFilter: 'blur(16px)', 
+        backdropFilter: 'blur(20px)', 
         boxSizing: 'border-box',
-        touchAction: 'manipulation'
+        touchAction: 'pan-y', /* Explicitly locks out mobile multi-finger browser zoom freezes */
+        position: isMobile ? 'relative' : 'static'
       }}>
         {isMobile ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', height: '100%', justifyItems: 'center', alignItems: 'center' }}>
-            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'chat' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
-              <MessageSquare style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
+            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === '#c084fc' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
+              <MessageSquare style={{ width: '20px', height: '20px', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }} />
+              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>Chats</span>
             </button>
 
-            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'explore' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
-              <Compass style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
+            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'explore' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
+              <Compass style={{ width: '20px', height: '20px', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }} />
+              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>Explore</span>
             </button>
 
-            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'live' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
-              <Radio style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
+            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'live' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
+              <Radio style={{ width: '20px', height: '20px', color: activeTab === 'live' ? '#c084fc' : '#52525b' }} />
+              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>Streams</span>
             </button>
 
-            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'settings' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
-              <Settings style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
+            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: activeTab === 'settings' ? '#c084fc' : '#52525b', touchAction: 'manipulation', padding: '4px 0' }}>
+              <Settings style={{ width: '20px', height: '20px', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }} />
+              <span style={{ fontSize: '10px', fontWeight: '600', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>Settings</span>
             </button>
 
-            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: 'rgba(239, 68, 68, 0.8)', touchAction: 'manipulation' }}>
-              <LogOut style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
+            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', color: 'rgba(239, 68, 68, 0.9)', touchAction: 'manipulation', padding: '4px 0' }}>
+              <LogOut style={{ width: '20px', height: '20px', color: 'rgba(239, 68, 68, 0.9)' }} />
+              <span style={{ fontSize: '10px', fontWeight: '600', color: 'rgba(239, 68, 68, 0.9)' }}>Logout</span>
             </button>
           </div>
         ) : (
