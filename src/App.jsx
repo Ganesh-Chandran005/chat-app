@@ -36,6 +36,7 @@ export default function App() {
         setLoading(false);
       } else {
         const isPending = sessionStorage.getItem('chatup_auth_pending');
+        // If no active user profile yet, don't trap them forever if the state dropped
         if (!isPending) {
           setUser(null);
           setLoading(false);
@@ -43,7 +44,21 @@ export default function App() {
         }
       }
     });
-    return () => unsubscribeAuth();
+
+    // Safety Timeout Release: If the loading screen stays stuck for more than 4 seconds,
+    // force clear the persistence anchor to let the interface evaluate correctly.
+    const safetyTimer = setTimeout(() => {
+      if (sessionStorage.getItem('chatup_auth_pending')) {
+        sessionStorage.removeItem('chatup_auth_pending');
+        setAuthLoading(false);
+        setLoading(false);
+      }
+    }, 4000);
+
+    return () => {
+      unsubscribeAuth();
+      clearTimeout(safetyTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -128,7 +143,6 @@ export default function App() {
         desc: newRoomDesc || 'General chat channel for team communication.'
       });
 
-      // Updated System Bot presentation payload to instruct evaluations cleanly
       await addDoc(collection(db, 'rooms', roomRef.id, 'messages'), {
         user: 'System Bot',
         avatar: '🤖',
@@ -163,7 +177,7 @@ export default function App() {
     }
   };
 
-  const isAuthBridgeActive = loading || authLoading || sessionStorage.getItem('chatup_auth_pending') === 'true';
+  const isAuthBridgeActive = (loading || authLoading) && sessionStorage.getItem('chatup_auth_pending') === 'true';
 
   if (isAuthBridgeActive) {
     return (
