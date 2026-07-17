@@ -121,7 +121,6 @@ export default function App() {
         desc: newRoomDesc || 'General chat channel for team communication.'
       });
 
-      // Fixed System Bot structural warning parameters for evaluation guidelines
       await addDoc(collection(db, 'rooms', roomRef.id, 'messages'), {
         user: 'System Bot',
         avatar: '🤖',
@@ -156,7 +155,6 @@ export default function App() {
     }
   };
 
-  // Safe Production Rendering Orchestrator
   if (loading || authLoading) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif', letterSpacing: '0.1em', fontSize: '14px' }}>
@@ -189,45 +187,46 @@ export default function App() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
       
-      {/* Dynamic Global Navigation Bar System */}
+      {/* Dynamic Global Navigation Bar System with Mobile Touch Optimization */}
       <div style={{ 
         width: isMobile ? '100%' : '72px', 
         height: isMobile ? '64px' : '100%', 
-        backgroundColor: 'rgba(6, 4, 29, 0.9)', 
+        backgroundColor: 'rgba(6, 4, 29, 0.95)', 
         borderRight: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.05)', 
         borderTop: isMobile ? '1px solid rgba(255, 255, 255, 0.05)' : 'none', 
         display: 'flex', 
         flexDirection: isMobile ? 'row' : 'column', 
         alignItems: 'center', 
-        padding: isMobile ? '0 8px' : '20px 0', 
+        padding: isMobile ? '0' : '20px 0', 
         justifyContent: 'space-between', 
         zIndex: 30, 
         backdropFilter: 'blur(16px)', 
-        boxSizing: 'border-box' 
+        boxSizing: 'border-box',
+        touchAction: 'manipulation' /* Suppresses multi-tap zoom freezes natively */
       }}>
         {isMobile ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', justifyItems: 'center', alignItems: 'center' }}>
-            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', width: '100%', height: '100%', justifyItems: 'center', alignItems: 'center' }}>
+            <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'chat' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
               <MessageSquare style={{ width: '20px', height: '20px' }} />
               <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
             </button>
 
-            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+            <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'explore' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
               <Compass style={{ width: '20px', height: '20px' }} />
               <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
             </button>
 
-            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+            <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'live' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
               <Radio style={{ width: '20px', height: '20px' }} />
               <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
             </button>
 
-            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+            <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: activeTab === 'settings' ? '#c084fc' : '#52525b', touchAction: 'manipulation' }}>
               <Settings style={{ width: '20px', height: '20px' }} />
               <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
             </button>
 
-            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.8)' }}>
+            <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', width: '100%', height: '100%', justifyContent: 'center', padding: 0, color: 'rgba(239, 68, 68, 0.8)', touchAction: 'manipulation' }}>
               <LogOut style={{ width: '20px', height: '20px' }} />
               <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
             </button>
@@ -290,7 +289,7 @@ export default function App() {
         )}
 
         {activeTab === 'explore' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
             <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
             <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
@@ -300,7 +299,7 @@ export default function App() {
         )}
 
         {activeTab === 'live' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Streams</h2>
             <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor active chat rooms.</p>
             <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
@@ -310,7 +309,7 @@ export default function App() {
         )}
 
         {activeTab === 'settings' && (
-          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Settings</h2>
             <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage notification preferences and connection status.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>

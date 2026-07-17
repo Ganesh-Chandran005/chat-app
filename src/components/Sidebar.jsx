@@ -4,7 +4,7 @@ import { Hash, Plus, Search } from 'lucide-react';
 export default function Sidebar({ rooms, activeRoomId, setActiveRoomId, setShowModal, isMobile }) {
   return (
     <div style={{ 
-      width: isMobile ? '120px' : '260px', /* Allow enough structural room for names */
+      width: isMobile ? '120px' : '260px', 
       height: '100%', 
       backgroundColor: 'rgba(8, 6, 37, 0.4)', 
       borderRight: '1px solid rgba(255, 255, 255, 0.05)', 
@@ -35,7 +35,18 @@ export default function Sidebar({ rooms, activeRoomId, setActiveRoomId, setShowM
         </div>
       )}
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      {/* Touch-Optimized Scrollable Channel Feed Panel */}
+      <div 
+        style={{ 
+          flex: 1, 
+          overflowY: 'auto', 
+          WebkitOverflowScrolling: 'touch', /* Enables clean mobile momentum scrolling */
+          padding: '8px 4px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '4px' 
+        }}
+      >
         {rooms.map((room) => {
           const isActive = room.id === activeRoomId;
           return (
@@ -53,7 +64,8 @@ export default function Sidebar({ rooms, activeRoomId, setActiveRoomId, setShowM
                 backgroundColor: isActive ? 'rgba(147, 51, 234, 0.15)' : 'transparent',
                 border: isActive ? '1px solid rgba(147, 51, 234, 0.3)' : '1px solid transparent',
                 color: isActive ? '#ffffff' : '#a1a1aa',
-                minWidth: 0
+                minWidth: 0,
+                touchAction: 'manipulation'
               }}
               title={room.name}
             >
