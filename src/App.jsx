@@ -16,6 +16,15 @@ export default function App() {
   const [newRoomDesc, setNewRoomDesc] = useState('');
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  
+  // Mobile responsive helper state
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -164,98 +173,116 @@ export default function App() {
   const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
-      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(147, 51, 234, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '50%', height: '50%', backgroundColor: 'rgba(6, 182, 212, 0.15)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' }} />
-
-      <div style={{ width: '72px', height: '100%', backgroundColor: 'rgba(6, 4, 29, 0.6)', borderRight: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', justifyContent: 'space-between', zIndex: 20, backdropFilter: 'blur(12px)', boxSizing: 'border-box' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-            <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
-          </div>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', overflow: 'hidden', backgroundColor: '#030014', color: '#f1f1f1', fontFamily: '"Inter", sans-serif' }}>
+      
+      {/* Dynamic Global Navigation Rail */}
+      <div style={{ 
+        width: isMobile ? '100%' : '72px', 
+        height: isMobile ? '60px' : '100%', 
+        backgroundColor: 'rgba(6, 4, 29, 0.85)', 
+        borderRight: isMobile ? 'none' : '1px solid rgba(255, 255, 255, 0.05)', 
+        borderTop: isMobile ? '1px solid rgba(255, 255, 255, 0.05)' : 'none', 
+        display: 'flex', 
+        flexDirection: isMobile ? 'row' : 'column', 
+        alignItems: 'center', 
+        padding: isMobile ? '0 12px' : '20px 0', 
+        justifyContent: 'space-between', 
+        zIndex: 30, 
+        backdropFilter: 'blur(12px)', 
+        boxSizing: 'border-box' 
+      }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', width: isMobile ? 'auto' : '100%', alignItems: 'center', gap: isMobile ? '20px' : '8px', flex: 1, justifyContent: isMobile ? 'space-around' : 'flex-start' }}>
+          {!isMobile && (
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+              <Sparkles style={{ width: '20px', height: '20px', color: '#ffffff' }} />
+            </div>
+          )}
           
-          <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
+          <button onClick={() => setActiveTab('chat')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'chat' ? '#c084fc' : '#52525b' }}>
             <MessageSquare style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Chats</span>
           </button>
 
-          <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
+          <button onClick={() => setActiveTab('explore')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'explore' ? '#c084fc' : '#52525b' }}>
             <Compass style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Explore</span>
           </button>
 
-          <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
+          <button onClick={() => setActiveTab('live')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'live' ? '#c084fc' : '#52525b' }}>
             <Radio style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Streams</span>
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '100%' }}>
-          <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', alignItems: 'center', justifyContent: 'end' }}>
+          <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
             <Settings style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
           </button>
 
-          <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%', padding: '8px 0', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
+          <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: 'rgba(239, 68, 68, 0.7)' }}>
             <LogOut style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Logout</span>
           </button>
         </div>
       </div>
 
-      {activeTab === 'chat' && (
-        rooms.length === 0 ? (
-          <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
-            <p style={{ fontSize: '15px', color: '#a1a1aa', marginBottom: '20px', fontWeight: '500' }}>No active chat channels available in the database.</p>
-            <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(147, 51, 234, 0.4)' }}>
-              + Create Your First Channel
-            </button>
-          </div>
-        ) : (
-          <>
-            <Sidebar rooms={rooms} activeRoomId={activeRoomId} setActiveRoomId={setActiveRoomId} setShowModal={setShowModal} />
-            <ChatRoom activeRoom={activeRoom} currentMessages={messages} inputMessage={inputMessage} setInputMessage={setInputMessage} handleSendMessage={handleSendMessage} />
-            <UserPanel currentUser={user} />
-          </>
-        )
-      )}
-
-      {activeTab === 'explore' && (
-        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
-          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
-            No public channels discovered yet. Use the chat tab to set up a new community.
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'live' && (
-        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Audio & Video Streams</h2>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor active chat rooms.</p>
-          <div style={{ padding: '30px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
-            No live active streams running inside this channel node cluster right now.
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'settings' && (
-        <div style={{ flex: 1, padding: '40px', zIndex: 20, display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Settings</h2>
-          <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage notification preferences and connection status.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user.displayName}</span>
+      {/* Main Container Layout */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 60px)' : '100%', width: '100%', overflow: 'hidden' }}>
+        {activeTab === 'chat' && (
+          rooms.length === 0 ? (
+            <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', color: '#a1a1aa', marginBottom: '20px', fontWeight: '500' }}>No active chat channels available in the database.</p>
+              <button onClick={() => setShowModal(true)} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: '#9333ea', border: 'none', color: '#ffffff', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}>
+                + Create Your First Channel
+              </button>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Connection Status</span>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Connected</span>
+          ) : (
+            <>
+              <Sidebar rooms={rooms} activeRoomId={activeRoomId} setActiveRoomId={setActiveRoomId} setShowModal={setShowModal} isMobile={isMobile} />
+              <ChatRoom activeRoom={activeRoom} currentMessages={messages} inputMessage={inputMessage} setInputMessage={setInputMessage} handleSendMessage={handleSendMessage} isMobile={isMobile} />
+              {!isMobile && <UserPanel currentUser={user} />}
+            </>
+          )
+        )}
+
+        {activeTab === 'explore' && (
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Explore Channels</h2>
+            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Discover public discussion communities and chat hubs.</p>
+            <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
+              No public channels discovered yet. Use the chat tab to set up a new community.
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {activeTab === 'live' && (
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Live Streams</h2>
+            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Broadcast voice loops or monitor active chat rooms.</p>
+            <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'rgba(255, 255, 255, 0.02)', color: '#a1a1aa', fontSize: '14px' }}>
+              No active live streams running inside this channel node cluster right now.
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div style={{ flex: 1, padding: isMobile ? '20px' : '40px', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff', margin: '0 0 8px 0' }}>Account Settings</h2>
+            <p style={{ fontSize: '14px', color: '#71717a', margin: '0 0 24px 0' }}>Manage notification preferences and connection status.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user.displayName}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Status</span>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: '#34d399' }}>Connected</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {showModal && (
         <Modal newRoomName={newRoomName} setNewRoomName={setNewRoomName} newRoomDesc={newRoomDesc} setNewRoomDesc={setNewRoomDesc} handleCreateRoom={handleCreateRoom} setShowModal={setShowModal} />
