@@ -8,7 +8,7 @@ import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false); // Prevents state flashing on mobile authentication
+  const [authLoading, setAuthLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('chat');
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState('');
@@ -29,9 +29,21 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      setAuthLoading(false); // Auth confirmation received, release the login screen lock
+      if (currentUser) {
+        setUser(currentUser);
+        // Clear the persistence token once user validation settles
+        sessionStorage.removeItem('chatup_auth_pending');
+        setAuthLoading(false);
+        setLoading(false);
+      } else {
+        // If no user is returned, check if an authentication callback is finishing in the background
+        const isPending = sessionStorage.getItem('chatup_auth_pending');
+        if (!isPending) {
+          setUser(null);
+          setLoading(false);
+          setAuthLoading(false);
+        }
+      }
     });
     return () => unsubscribeAuth();
   }, []);
@@ -80,18 +92,24 @@ export default function App() {
   }, [user, activeRoomId, activeTab]);
 
   const handleLogin = async () => {
-    setAuthLoading(true); // Lock the screen to intercept mobile layout flash loops
+    setAuthLoading(true);
+    // Set a cross-refresh session anchor to block state dropping on new account creation
+    sessionStorage.setItem('chatup_auth_pending', 'true');
+    
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Authentication failed:", error);
+      sessionStorage.removeItem('chatup_auth_pending');
       setAuthLoading(false);
     }
   };
 
   const handleLogout = async () => {
     try {
+      sessionStorage.removeItem('chatup_auth_pending');
       await signOut(auth);
+      setUser(null);
       setActiveRoomId('');
       setRooms([]);
       setMessages([]);
@@ -147,10 +165,13 @@ export default function App() {
     }
   };
 
-  if (loading || authLoading) {
+  // Check storage anchor to see if an identity callback is running
+  const isAuthBridgeActive = loading || authLoading || sessionStorage.getItem('chatup_auth_pending') === 'true';
+
+  if (isAuthBridgeActive) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#030014', color: '#a855f7', fontFamily: 'sans-serif', letterSpacing: '0.1em', fontSize: '14px' }}>
-        Authenticating and sync settings...
+        Securing identity connection and initializing application dashboard...
       </div>
     );
   }
@@ -218,7 +239,7 @@ export default function App() {
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', itemsCenter: 'center', justifyContent: 'end' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '8px', alignItems: 'center', justifyContent: 'end' }}>
           <button onClick={() => setActiveTab('settings')} style={{ border: 'none', background: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer', color: activeTab === 'settings' ? '#c084fc' : '#52525b' }}>
             <Settings style={{ width: '20px', height: '20px' }} />
             <span style={{ fontSize: '9px', fontWeight: '500' }}>Settings</span>
@@ -231,7 +252,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Content Pane */}
+      {/* Main Container Layout */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', height: isMobile ? 'calc(100vh - 60px)' : '100%', width: '100%', overflow: 'hidden' }}>
         {activeTab === 'chat' && (
           rooms.length === 0 ? (
@@ -277,7 +298,7 @@ export default function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <span style={{ fontSize: '14px', color: '#d4d4d8' }}>User Profile</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user.displayName}</span>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: '#c084fc' }}>{user?.displayName}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <span style={{ fontSize: '14px', color: '#d4d4d8' }}>Status</span>
